@@ -5,9 +5,10 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/docker/docker/api/types"
 	"sub-store-manager-cli/lib"
 	"sub-store-manager-cli/vars"
+
+	"github.com/docker/docker/api/types"
 )
 
 func GetAllContainers() []types.Container {
@@ -71,7 +72,7 @@ func (c *Container) GetPortInfo() (info PortInfo, error error) {
 		error = errors.New("container not found or not running")
 		return
 	}
-
+	info.HostIP = c.DockerContainer.Ports[0].IP
 	info.Public = strconv.Itoa(int(c.DockerContainer.Ports[0].PublicPort))
 	info.Private = strconv.Itoa(int(c.DockerContainer.Ports[0].PrivatePort))
 	info.Type = c.DockerContainer.Ports[0].Type

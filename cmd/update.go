@@ -3,10 +3,11 @@ package cmd
 import (
 	"fmt"
 
-	"github.com/spf13/cobra"
 	"sub-store-manager-cli/docker"
 	"sub-store-manager-cli/lib"
 	"sub-store-manager-cli/vars"
+
+	"github.com/spf13/cobra"
 )
 
 var updateCmd = &cobra.Command{
@@ -68,6 +69,11 @@ func updateContainer() {
 		lib.PrintError("Failed to get port info:", err)
 	} else {
 		c.HostPort = p.Public
+		if p.HostIP == "127.0.0.1" {
+			c.Private = true
+		} else {
+			c.Private = false
+		}
 	}
 
 	c.SetDockerfile("")

@@ -3,9 +3,10 @@ package docker
 import (
 	"context"
 
+	"sub-store-manager-cli/lib"
+
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/client"
-	"sub-store-manager-cli/lib"
 )
 
 var (
@@ -27,6 +28,7 @@ type Container struct {
 }
 
 type PortInfo struct {
+	HostIP  string
 	Public  string
 	Private string
 	Type    string
