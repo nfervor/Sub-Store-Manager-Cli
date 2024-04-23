@@ -82,5 +82,6 @@ func updateContainer() {
 	// 删除旧容器, 启动新容器
 	oldContainer.Stop()
 	oldContainer.Delete()
+	oldContainer.DeleteImage()
 	c.StartImage()
 }

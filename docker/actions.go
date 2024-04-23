@@ -46,3 +46,16 @@ func (c *Container) Delete() {
 
 	fmt.Println("Container deleted successfully.")
 }
+
+// Delete 删除镜像
+func (c *Container) DeleteImage() {
+	fmt.Printf("Delete image %s...\n", c.ImageName)
+
+	_, err := dc.ImageRemove(dcCtx, c.DockerContainer.ImageID, types.ImageRemoveOptions{Force: true})
+	if err != nil {
+		fmt.Println("Failed to delete image: ", err)
+		os.Exit(1)
+	}
+
+	fmt.Println("Image deleted successfully.")
+}

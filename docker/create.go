@@ -7,13 +7,14 @@ import (
 	"strconv"
 	"time"
 
+	"sub-store-manager-cli/lib"
+	"sub-store-manager-cli/vars"
+
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/api/types/filters"
 	"github.com/docker/docker/api/types/network"
 	"github.com/docker/go-connections/nat"
-	"sub-store-manager-cli/lib"
-	"sub-store-manager-cli/vars"
 )
 
 // createImageFromPath 从指定路径创建镜像
@@ -34,7 +35,7 @@ func createImageFromPath(c *Container, bPath string, tPath string) {
 	}
 	defer tarFile.Close()
 
-	// 构建容器
+	// 构建镜像
 	c.buildImage(tarFile)
 }
 
@@ -94,7 +95,7 @@ func (c *Container) CreateImage() {
 }
 
 func (c *Container) buildImage(tar *os.File) {
-	// 构建容器
+	// 构建镜像
 	buildOptions := types.ImageBuildOptions{
 		Context:    tar,
 		Dockerfile: "Dockerfile",

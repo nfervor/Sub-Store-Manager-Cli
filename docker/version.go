@@ -19,53 +19,38 @@ type ReleaseInfo struct {
 	Body        string    `json:"body"`
 }
 
-func getBEVersionInfos() (json []ReleaseInfo) {
-	_, err := lib.HC.R().SetResult(&json).Get("https://api.github.com/repos/sub-store-org/Sub-Store/releases")
+func (c *Container) getVersionInfos() (json []ReleaseInfo) {
+	var repoURL string
+	switch c.ContainerType {
+	case vars.ContainerTypeFE:
+		repoURL = "https://api.github.com/repos/sub-store-org/Sub-Store-Front-End/releases"
+	case vars.ContainerTypeBE:
+		repoURL = "https://api.github.com/repos/sub-store-org/Sub-Store/releases"
+	}
+	_, err := lib.HC.R().SetResult(&json).Get(repoURL)
 	if err != nil {
 		lib.PrintError("Failed to get versions info:", err)
 	}
 	return
 }
 
-func getBEVersionStrs() (v []string) {
-	for _, info := range getBEVersionInfos() {
+func (c *Container) getVersionStrs() (v []string) {
+	for _, info := range c.getVersionInfos() {
 		v = append(v, info.TagName)
 	}
 	return
 }
 
-type FEVersionInfo struct {
-	Sha string `json:"sha"`
-}
-
-func getFEVersion() (v string) {
-	var info FEVersionInfo
-	_, err := lib.HC.R().SetResult(&info).Get("https://api.github.com/repos/sub-store-org/Sub-Store-Front-End/commits/master")
-	if err != nil {
-		lib.PrintError("Failed to get versions info:", err)
-	}
-	return info.Sha
-}
-
 func (c *Container) SetLatestVersion() {
-	switch c.ContainerType {
-	case vars.ContainerTypeFE:
-		c.Version = getFEVersion()[:7]
-	case vars.ContainerTypeBE:
-		versions := getBEVersionStrs()
-		if len(versions) == 0 {
-			lib.PrintError("no versions found", nil)
-		}
-		c.Version = versions[0]
+	versions := c.getVersionStrs()
+	if len(versions) == 0 {
+		lib.PrintError("no versions found", nil)
 	}
+	c.Version = versions[0]
 }
 
 func (c *Container) CheckVersionValid() bool {
-	if c.ContainerType != vars.ContainerTypeBE {
-		return true
-	}
-
-	versions := getBEVersionStrs()
+	versions := c.getVersionStrs()
 	for _, v := range versions {
 		if v == c.Version {
 			return true
