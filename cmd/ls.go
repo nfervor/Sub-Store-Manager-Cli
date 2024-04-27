@@ -3,10 +3,11 @@ package cmd
 import (
 	"fmt"
 
+	"sub-store-manager-cli/docker"
+
 	"github.com/fatih/color"
 	"github.com/rodaine/table"
 	"github.com/spf13/cobra"
-	"sub-store-manager-cli/docker"
 )
 
 var lsCmd = &cobra.Command{
@@ -29,7 +30,7 @@ func listAllSSMContainer() {
 	headerFmt := color.New(color.FgGreen, color.Underline).SprintfFunc()
 	columnFmt := color.New(color.FgYellow).SprintfFunc()
 
-	tbl := table.New("Type", "ID", "Version", "Port", "Status", "Name")
+	tbl := table.New("Type", "ID", "Version", "Ports", "Status", "Names")
 	tbl.WithHeaderFormatter(headerFmt).WithFirstColumnFormatter(columnFmt)
 
 	for _, c := range append(fel, bel...) {
@@ -37,7 +38,7 @@ func listAllSSMContainer() {
 		if p, e := c.GetPortInfo(); e != nil {
 			portStr = "none"
 		} else {
-			portStr = fmt.Sprintf("%s: %s->%s", p.Type, p.Public, p.Private)
+			portStr = fmt.Sprintf("%s:%s->%s/%s", p.HostIP, p.Public, p.Private, p.Type)
 		}
 		tbl.AddRow(c.ContainerType, c.DockerContainer.ID[:24], c.Version, portStr, c.DockerContainer.State, c.Name)
 	}
