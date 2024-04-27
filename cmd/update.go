@@ -47,14 +47,9 @@ func updateContainer() {
 		c.SetLatestVersion()
 		fmt.Println("No version specified, using the latest version")
 	} else {
-		if c.ContainerType == vars.ContainerTypeFE {
-			c.SetLatestVersion()
-			lib.PrintInfo("The version flag is ignored when target is a front-end container.")
-		} else {
-			isValid := c.CheckVersionValid()
-			if !isValid {
-				lib.PrintError("The version is not valid.", nil)
-			}
+		isValid := c.CheckVersionValid()
+		if !isValid {
+			lib.PrintError("The version is not valid.", nil)
 		}
 	}
 

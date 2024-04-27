@@ -3,10 +3,10 @@ package cmd
 import (
 	"fmt"
 
-	"github.com/spf13/cobra"
 	"sub-store-manager-cli/docker"
 	"sub-store-manager-cli/lib"
-	"sub-store-manager-cli/vars"
+
+	"github.com/spf13/cobra"
 )
 
 var newCmd = &cobra.Command{
@@ -51,15 +51,10 @@ func newContainer() {
 		c.SetLatestVersion()
 		fmt.Println("No version specified, using the latest version")
 	} else {
-		if c.ContainerType == vars.ContainerTypeFE {
-			c.SetLatestVersion()
-			lib.PrintInfo("The version flag is ignored when creating a front-end container.")
-		} else {
-			c.Version = inputVersion
-			isValid := c.CheckVersionValid()
-			if !isValid {
-				lib.PrintError("The version is not valid.", nil)
-			}
+		c.Version = inputVersion
+		isValid := c.CheckVersionValid()
+		if !isValid {
+			lib.PrintError("The version is not valid.", nil)
 		}
 	}
 

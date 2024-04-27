@@ -45,6 +45,11 @@ func createFEImage(c *Container) {
 	buildDir := filepath.Join(vars.FEFileDir, c.Version)
 	tarPath := filepath.Join(vars.FEFileDir, "temp.tar")
 
+	// 下载对应版本前端程序文件
+	dist := filepath.Join(buildDir, "dist.zip")
+	lib.DownloadFile(fmt.Sprintf("https://github.com/sub-store-org/Sub-Store-Front-End/releases/download/%s/dist.zip", c.Version), dist)
+	fmt.Println("Files downloaded successfully.")
+
 	createImageFromPath(c, buildDir, tarPath)
 }
 

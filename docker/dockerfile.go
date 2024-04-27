@@ -29,15 +29,13 @@ WORKDIR /app
 RUN apt-get update && \
     apt-get install -y curl unzip && \
     rm -rf /var/lib/apt/lists/* && \
-    curl -LJO https://sub-store-org.github.io/resource/ssm/nginx.conf && \
-    curl -o dist.zip -LJ https://github.com/sub-store-org/Sub-Store-Front-End/releases/latest/download/dist.zip && \
-    unzip dist.zip
+    curl -LJO https://sub-store-org.github.io/resource/ssm/nginx.conf
 
 FROM nginx:alpine AS runner
 
 WORKDIR /app
-
-COPY --from=downloader /app/dist ./www
+COPY dist.zip /app/
+RUN unzip dist.zip -d /app && mv /app/dist /app/www && rm dist.zip
 COPY --from=downloader /app/nginx.conf /etc/nginx/conf.d/default.conf
 
 EXPOSE 80
