@@ -1,0 +1,100 @@
+name: Build and Package
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: '1.22.2'
+
+      - name: Build for Windows AMD64
+        run: |
+          GOOS=windows GOARCH=amd64 go build -trimpath -ldflags "-s -w" -o ssm_windows_amd64.exe main.go
+
+      - name: Build for Windows ARM64
+        run: |
+          GOOS=windows GOARCH=arm64 go build -trimpath -ldflags "-s -w" -o ssm_windows_arm64.exe main.go
+
+      - name: Build for Linux AMD64
+        run: |
+          GOOS=linux GOARCH=amd64 go build -trimpath -ldflags "-s -w" -o ssm_linux_amd64 main.go
+          upx ssm_linux_amd64
+          # 删除调试信息组合起来删除多余的信息
+          # 使用upx压缩可执行文件，压缩率高，压缩后体积小，提升下载速度
+      - name: Build for Linux ARM64
+        run: |
+          GOOS=linux GOARCH=arm64 go build -o ssm_linux_arm64 main.go
+
+      - name: Build for macOS AMD64
+        run: |
+          GOOS=darwin GOARCH=amd64 go build -trimpath -ldflags "-s -w" -o ssm_mac_amd64 main.go
+
+      - name: Build for macOS ARM64
+        run: |
+          GOOS=darwin GOARCH=arm64 go build -trimpath -ldflags "-s -w" -o ssm_mac_arm64 main.go
+
+      - id: tag
+        name: Generate release tag
+        run: |
+          SUB_STORE_RELEASE=`node --eval="process.stdout.write(require('./package.json').version)"`
+          echo "release_tag=$SUB_STORE_RELEASE" >> $GITHUB_OUTPUT
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        if: ${{ success() }}
+        with:
+          tag_name: ${{ steps.tag.outputs.release_tag }}
+          generate_release_notes: true
+          files: |
+            ssm_windows_amd64.exe
+            ssm_windows_arm64.exe
+            ssm_linux_amd64
+            ssm_linux_arm64
+            ssm_mac_amd64
+            ssm_mac_arm64
+            
+
+    - name: Extract version from vars.go
+      id: extract-version
+      run: |
+        ssm_version= $(echo "::set-output name=version::$(grep -oP '(?<=Version\s+=\s+").*(?=")' vars/vars.go)")
+        echo "release_tag=$ssm_version" >> $GITHUB_OUTPUT
+
+    - name: Display version
+      run: echo "Version is ${{ steps.extract-version.outputs.version }}"
+
+
+
+
+
+
+               - id: tag
+        name: Generate release tag
+        run: |
+          cd backend
+          SUBSTORE_RELEASE=`node --eval="process.stdout.write(require('./package.json').version)"`
+          echo "release_tag=$SUBSTORE_RELEASE" >> $GITHUB_OUTPUT
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        if: ${{ success() }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ steps.tag.outputs.release_tag }}
+          generate_release_notes: true
+          files: |
+            ./backend/sub-store.min.js
+            ./backend/dist/sub-store-0.min.js
+            ./backend/dist/sub-store-1.min.js
+            ./backend/dist/sub-store-parser.loon.min.js
+            ./backend/dist/cron-sync-artifacts.min.js
+            ./backend/dist/sub-store.bundle.js
