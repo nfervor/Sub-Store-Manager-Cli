@@ -51,7 +51,7 @@ func (c *Container) Delete() {
 func (c *Container) DeleteImage() {
 	fmt.Printf("Delete image %s...\n", c.ImageName)
 
-	_, err := dc.ImageRemove(dcCtx, c.DockerContainer.ImageID, types.ImageRemoveOptions{Force: true})
+	_, err := dc.ImageRemove(dcCtx, c.DockerContainer.ImageID, types.ImageRemoveOptions{Force: true, PruneChildren: true})
 	if err != nil {
 		fmt.Println("Failed to delete image: ", err)
 		os.Exit(1)
